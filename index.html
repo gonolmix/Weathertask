@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <div class="search">
+            <div class="serachAndLoad"><input type="text" placeholder="Введите город, чтобы узнать погоду..." id="cityInput" class="cityInput">
+            <div class="loaderBox"><div class="loader hidden" id="loader"></div></div>
+            </div>
+            <div class="buttons">
+                <button class="showWeather" id="searchButton">Найти</button>
+                <button class="getLocation" id="getLocationButton">Определить местоположение</button>
+            </div>
+        </div>
+        <div>
+
+            <div class="errorModal hidden" id="errorModal">
+                <div class="errorModalContent" id="errorModalContent">
+                    <div class="modalHeader">
+                        <h1 class="modal-title">Упс...</h1>
+                    </div>
+                    <hr>
+                    <div class="modalBody">
+                        <div class="errorDetails" id="errorDetails">
+                        </div>
+                    </div>
+                    <div class="modalFooter">
+                        <button  class="closeModalButton" id="closeModalButton">Смириться</button>
+                    </div>
+                </div>
+            </div>
+            <div class="weatherResponse" id="weatherResponse">
+                <div class="weatherView" id="weatherView">
+                    <h1 id="cityName">Название города</h3>
+                    <img src="/images/Sadness.png" alt="Иконка погоды" id="weatherImage" class="weatherImage">
+                    <p id="weatherDescription">Описание погоды</p>
+                </div>
+
+                <div class="weatherParametrsList" id="weatherParametrsList">
+                    <div><strong>Температура: </strong><span id="temperature" class="parametrText">?</span> °C</div>
+                    <div><strong>Влажность: </strong><span id="humidity" class="parametrText">?</span>%</div>
+                    <div><strong>Ветер: </strong><span id="wind" class="parametrText">?</span> м/с</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+<script src="script.js"></script>
+</html>

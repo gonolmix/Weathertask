@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Нет связи</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="error.css">
+</head>
+<body>
+
+<div class="app">
+    <h1>Нет связи с сервисом погоды</h1>
+    <img src="/images/Sadness.png" alt="Грустная тучка">
+    <p>
+        Проверьте подключение к интернету <br>
+        или попробуйте позже.
+    </p>
+</div>
+
+<script>
+    window.addEventListener("online", () => {
+        window.location.href = "index.html";
+    });
+</script>
+
+</body>
+</html>
