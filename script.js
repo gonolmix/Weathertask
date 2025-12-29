@@ -7,8 +7,10 @@ window.addEventListener("offline", () => {
 })
 
 
-const API_KEY = "4de25b3ca3543c1e29a2fdfb487052d6"
 const BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+let abortController = null
+let signal = null
+let inputTimeout = null
 
 const cityInput = document.getElementById("cityInput")
 const searchButton = document.getElementById("searchButton")
@@ -25,15 +27,17 @@ const humidity = document.getElementById("humidity")
 const wind = document.getElementById("wind")
 const closeModal = document.getElementById("closeModalButton")
 const weatherResponse = document.getElementById("weatherResponse")
-const weatherParametrsList = document.getElementById("weatherParametrsList")
+const weatherParametersList = document.getElementById("weatherParametersList")
 const weatherView = document.getElementById("weatherView")
 
-if (!localStorage.getItem("lastCity")){
+const cashedResponce = JSON.parse(localStorage.getItem("lastCityWeatherCached"))
+
+if (!localStorage.getItem("lastCityWeatherCached")){
     weatherImage.src = `/images/Sadness.png`
 }
-const lastCity = localStorage.getItem("lastCity")
-if(lastCity){
-    fetchWeatherByCity(lastCity)
+
+if(cashedResponce){
+    renderWeather(cashedResponce.data)
 }
 
 // UI Helpers
@@ -55,12 +59,16 @@ function hideModal(){
 
 function setWeatherViews(isLoading){
     weatherResponse.classList.toggle("hidden", !isLoading)
-    weatherParametrsList.classList.toggle("hidden", !isLoading)
+    weatherParametersList.classList.toggle("hidden", !isLoading)
 }
 
 closeModal.addEventListener("click", hideModal)
 
 // События
+
+// cityInput.addEventListener("input", () =>{
+//     cityInput.setTimeout(300);
+// })
 
 searchButton.addEventListener("click", () => {
     const city = cityInput.value.trim()
@@ -69,46 +77,78 @@ searchButton.addEventListener("click", () => {
         showModal("Вы не ввели название города!")
         return
     }
-    fetchWeatherByCity(city)
+    
+    fetchWeatherByCoordsOrCity({city: city})
 })
 
 cityInput.addEventListener("keydown", e => {
-    if (e.key === "Enter")
+    if (e.key === "Enter" && !searchButton.disabled)
         searchButton.click()
 })
 
-function fetchWeatherByCoords(lat, lon){
-    const url = `${BASE_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=ru`
-    fetchWeather(url)
-}
+// function fetchWeatherByCoords(lat, lon){
+//     const url = `${BASE_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=ru`
+//     fetchWeather(url)
+// }
 
-function fetchWeatherByCity(city){
-    const url = `${BASE_URL}?q=${encodeURIComponent(city)}&units=metric&lang=ru&appid=${API_KEY}`
+// function fetchWeatherByCity(city){
+//     const url = `${BASE_URL}?q=${encodeURIComponent(city)}&units=metric&lang=ru&appid=${API_KEY}`
+//     fetchWeather(url)
+// }
+
+function fetchWeatherByCoordsOrCity({city, lat, lon}){
+    let query = ""
+    if (city){
+        query = `q=${encodeURIComponent(city)}`
+    }
+    else {
+        query = `lat=${lat}&lon=${lon}`
+    }
+    const url = `${BASE_URL}?${query}&units=metric&lang=ru&appid=${API_KEY}`
     fetchWeather(url)
 }
 
 function setLoadingStyles(blue){
     if (blue){
-        weatherView.style.boxShadow = "0 20px 60px rgba(255, 216, 109, 0.3)"
-        weatherParametrsList.style.boxShadow = "0 20px 60px rgba(255, 216, 109, 0.3)"
-        cityInput.style.boxShadow = "0 20px 60px rgba(255, 216, 109, 0.3)"
-        searchButton.style.boxShadow = "0 20px 60px rgba(255, 216, 109, 0.3)"
-        getLocationButton.style.boxShadow = "0 20px 60px rgba(255, 216, 109, 0.3)"
+        weatherView.classList.add("loading")
+        weatherParametersList.classList.add("loading")
+        cityInput.classList.add("loading")
+        searchButton.classList.add("loading")
+        getLocationButton.classList.add("loading")
     }
     else{
-        weatherView.style.boxShadow = "0 20px 60px rgba(109, 201, 255, 0.3)"
-        weatherParametrsList.style.boxShadow = "0 20px 60px rgba(109, 201, 255, 0.3)"
-        cityInput.style.boxShadow = "0 20px 60px rgba(109, 201, 255, 0.3)"
-        searchButton.style.boxShadow = "0 20px 60px rgba(109, 201, 255, 0.3)"
-        getLocationButton.style.boxShadow = "0 20px 60px rgba(109, 201, 255, 0.3)"
+        weatherView.classList.remove("loading")
+        weatherParametersList.classList.remove("loading")
+        cityInput.classList.remove("loading")
+        searchButton.classList.remove("loading")
+        getLocationButton.classList.remove("loading")
     }
 }
 
+function setDescriptionClass (weatherId){
+    weatherDescription.classList.remove("sunny", "cloudy")
+    if (weatherId === 800){
+        weatherDescription.classList.add("sunny")
+    }
+    if (weatherId > 800 && weatherId < 900){
+        weatherDescription.classList.add("cloudy")
+    }
+}
+
+    // добавлен AbortController, который закрывает предыдущий запрос во время нового поиска
 async function fetchWeather(url){
+
+    if (abortController){
+        abortController.abort()
+    }
+
+    abortController = new AbortController()
+    signal = abortController.signal
+
     setLoadingStyles(true)
     setLoading(true)
     try{
-        const response = await fetch(url)
+        const response = await fetch(url, {signal})
         if (!response.ok){
             if (response.status === 404){
                 throw new Error("Город не найден")
@@ -119,6 +159,9 @@ async function fetchWeather(url){
             throw new Error("Неизвестная ошибка")
         }
         const data = await response.json()
+        if (!data.weather || !Array.isArray(data.weather) || !data.weather[0]){
+            throw new Error("Некорректный ответ API на запрос")
+        }
         renderWeather(data)
     }
     catch(error){
@@ -128,42 +171,73 @@ async function fetchWeather(url){
         else if(error.message === "Город не найден"){
             showModal("Город, который вы ввели, не найден!")
         }
+        else if(error.name === "AbortError"){
+            return
+        }
         else{
             showModal("Ошибка получения данных о погоде")
         }
+
     }
     finally {
         setLoadingStyles(false)
         setLoading(false)
     }
 }
-getLocationButton.addEventListener("click", () => {
-    if (!navigator.geolocation) {
-        showModal("");
-        return;
+    function handleGeolocationError(error){
+        switch (error.code){
+            case error.PerMISSION_DENIED:
+                showModal("Доступ к геолокации запрещён пользователем");
+                break;
+            case error.POSITION_UNAVAILABLE:
+                showModal("Местоположение недоступно");
+                break;
+            case error.TIMEOUT:
+                showModal("Истекло время ожидания определения местоположения");
+                break;
+            default:
+                showModal("Неизвестная ошибка геолокации");
     }
+        }
+
+    getLocationButton.addEventListener("click", () => {
+        if (!navigator.geolocation) {
+            showModal("");
+        return;
+        }
 
     navigator.geolocation.getCurrentPosition(
         pos => {
-            fetchWeatherByCoords(
-                pos.coords.latitude,
-                pos.coords.longitude
+            fetchWeatherByCoordsOrCity({
+                lat: pos.coords.latitude,
+                lon: pos.coords.longitude
+                }
             );
         },
-        () => {
-            showModal("Доступ к геолокации запрещён");
+        handleGeolocationError,{
+            timeout: 10000
         }
     );
 });
+
+// добавлены классы погоды
+// теперь в кэше хранится запрос, а не название города
 function renderWeather(data){
     cityName.textContent = data.name
     weatherImage.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`
     weatherImage.alt = data.weather[0].description
+
+    let weatherId = data.weather[0].id
+    setDescriptionClass(weatherId)
+    
     weatherDescription.textContent = data.weather[0].description
     temperature.textContent = Math.round(data.main.temp)
     humidity.textContent = data.main.humidity
     wind.textContent = data.wind.speed
 
-    localStorage.setItem("lastCity", data.name)
+    localStorage.setItem("lastCityWeatherCached", JSON.stringify({
+        data,
+        timestamp: Date.now()
+    }))
 }
 

@@ -27,12 +27,17 @@
     padding-left: 20px;
     font-size: large;
 }
-
+.cityInput.loading {
+    box-shadow: 0 20px 60px rgba(255, 216, 109, 0.3);
+}
 
 .cityInput:focus {
     outline: none;
     box-shadow: 0 20px 60px rgba(109, 201, 255, 0.3);
     border-color: #4599c9;
+}
+.cityInput.loading:focus {
+    box-shadow: 0 20px 60px rgba(255, 216, 109, 0.3);
 }
 
 .showWeather {
@@ -45,8 +50,10 @@
     font-weight: 520;
     font-size: 1.1rem;
 }
-
-.serachAndLoad {
+.showWeather.loading {
+    box-shadow: 0 20px 60px rgba(255, 216, 109, 0.3);
+}
+.searchAndLoad {
     display: flex;
     gap: 8px;
 }
@@ -65,6 +72,10 @@
     color: white;
     font-weight: 520;
     font-size: 0.85rem;
+}
+
+.getLocation.loading {
+    box-shadow: 0 20px 60px rgba(255, 216, 109, 0.3);
 }
 
 .getLocation:hover {
@@ -172,8 +183,11 @@
     justify-content: center;
     align-items: center;
 }
+.weatherView.loading {
+    box-shadow: 0 20px 60px rgba(255, 216, 109, 0.3);
+}
 
-.weatherParametrsList {
+.weatherParametersList {
     height: 500px;
     border: 1px solid black;
     width: 510px;
@@ -188,6 +202,9 @@
     gap: 50px;
     padding-left: 40px;
     color: #4599c9;
+}
+.weatherParametersList.loading {
+    box-shadow: 0 20px 60px rgba(255, 216, 109, 0.3);
 }
 
 .weatherImage {
@@ -209,7 +226,21 @@
     color: rgb(87, 82, 82);
 }
 
-.parametrText {
+.weatherDescription {
+    font-size: 40px;
+    text-align: center;
+    color: rgb(87, 82, 82);
+}
+
+.weatherDescription.sunny {
+    color: orange;
+}
+
+.weatherDescription.cloudy {
+    color: lightblue;
+}
+
+.parameterText {
     color: orange;
 }
 .buttons {
@@ -232,7 +263,7 @@
     .cityInput {
         max-width: 400px;
     }
-    .serachAndLoad {
+    .searchAndLoad {
         display: flex;
     }
     .buttons{
@@ -242,12 +273,12 @@
     }
 
     .weatherView,
-    .weatherParametrsList {
+    .weatherParametersList {
         max-width: 420px;
         height: auto;
     }
 
-    .weatherParametrsList {
+    .weatherParametersList {
         font-size: 28px;
         gap: 30px;
     }
@@ -263,7 +294,7 @@
         gap: 12px;
         width: 452px;
     }
-    .serachAndLoad {
+    .searchAndLoad {
         width: 452px;
         justify-content: center;
     }
@@ -297,7 +328,7 @@
     }
 
     .weatherView,
-    .weatherParametrsList {
+    .weatherParametersList {
         width: 100%;
         max-width: 100%;
         padding: 20px;
@@ -323,11 +354,11 @@
         justify-content: center;
         align-items: center;
     }
-    .weatherParametrsList {
+    .weatherParametersList {
         font-size: 18px;
         gap: 15px;
     }
-    .serachAndLoad {
+    .searchAndLoad {
         width: 300px;
     }
     .modalHeader h1 {
