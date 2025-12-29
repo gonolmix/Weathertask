@@ -9,7 +9,7 @@
 <body>
     <div class="app">
         <div class="search">
-            <div class="serachAndLoad"><input type="text" placeholder="Введите город, чтобы узнать погоду..." id="cityInput" class="cityInput">
+            <div class="searchAndLoad"><input type="text" placeholder="Введите город, чтобы узнать погоду..." id="cityInput" class="cityInput">
             <div class="loaderBox"><div class="loader hidden" id="loader"></div></div>
             </div>
             <div class="buttons">
@@ -36,20 +36,21 @@
             </div>
             <div class="weatherResponse" id="weatherResponse">
                 <div class="weatherView" id="weatherView">
-                    <h1 id="cityName">Название города</h3>
-                    <img src="/images/Sadness.png" alt="Иконка погоды" id="weatherImage" class="weatherImage">
-                    <p id="weatherDescription">Описание погоды</p>
+                    <h1 id="cityName">Название города</h1>
+                    <img src="/images/Sadness.png" loading="lazy" alt="Иконка погоды" id="weatherImage" class="weatherImage">
+                    <p id="weatherDescription" class="weatherDescription">Описание погоды</p>
                 </div>
 
-                <div class="weatherParametrsList" id="weatherParametrsList">
-                    <div><strong>Температура: </strong><span id="temperature" class="parametrText">?</span> °C</div>
-                    <div><strong>Влажность: </strong><span id="humidity" class="parametrText">?</span>%</div>
-                    <div><strong>Ветер: </strong><span id="wind" class="parametrText">?</span> м/с</div>
+                <div class="weatherParametersList" id="weatherParametersList">
+                    <div><strong>Температура: </strong><span id="temperature" class="parameterText">?</span> °C</div>
+                    <div><strong>Влажность: </strong><span id="humidity" class="parameterText">?</span>%</div>
+                    <div><strong>Ветер: </strong><span id="wind" class="parameterText">?</span> м/с</div>
                 </div>
             </div>
         </div>
     </div>
     
 </body>
+<script src="config.js"></script>
 <script src="script.js"></script>
 </html>
